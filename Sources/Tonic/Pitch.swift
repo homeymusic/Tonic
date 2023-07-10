@@ -2,27 +2,6 @@
 
 import Foundation
 
-public typealias PitchSet = BitSetAdapter<Pitch, BitSet128>
-
-public extension PitchSet {
-    init(pitches: [Pitch]) {
-        self.init()
-        for pitch in pitches {
-            add(pitch)
-        }
-    }
-
-    func chord(in key: Key) -> Chord? {
-        var notes = NoteSet()
-        forEach { notes.add($0.note(in: key)) }
-        return Chord(noteSet: notes)
-    }
-
-    func contains(pitchClass: Int8) -> Bool {
-        array.first { pitch in pitch.pitchClass == pitchClass } != nil
-    }
-}
-
 /// Essentially a midi note number.
 ///
 /// We want to use a notion of pitch that lends itself to combinatorial algorithms,
