@@ -31,7 +31,7 @@ public struct RelativePitch: Equatable, Hashable {
     /// Returns the distance between Pitches in semitones.
     /// - Parameter to: RelativePitch to which you want to know the distance
     public func semitones(to next: RelativePitch) -> Int8 {
-        abs(interval - next.interval)
+        abs(midiNoteNumber - next.midiNoteNumber)
     }
 
     /// Equivalence classes of pitches modulo octave.
@@ -39,22 +39,28 @@ public struct RelativePitch: Equatable, Hashable {
         interval % 12
     }
 
+    /// Equivalence classes of pitches modulo octave.
+    public var midiNoteNumber: Int8 {
+        interval + 12 * octave + 12
+    }
 }
 
 extension RelativePitch: IntRepresentable {
     public var intValue: Int {
-        Int(interval) + 2
+        Int(midiNoteNumber)
     }
 
     public init(intValue: Int) {
-        interval = Int8(intValue)
-        octave = Int8(4)
+        let m = Float(intValue)
+        
+        octave = Int8(floor((m-12)/12))
+        interval = Int8(Int((m-12)) % 12)
     }
 }
 
 extension RelativePitch: Comparable {
     public static func < (lhs: RelativePitch, rhs: RelativePitch) -> Bool {
-        lhs.interval < rhs.interval
+        lhs.midiNoteNumber < rhs.midiNoteNumber
     }
 }
 
@@ -64,6 +70,6 @@ extension RelativePitch: Strideable {
     }
 
     public func advanced(by n: Int8) -> RelativePitch {
-        RelativePitch(intValue: Int((interval + n)))
+        RelativePitch(intValue: Int((midiNoteNumber + n)))
     }
 }
