@@ -22,10 +22,20 @@ public extension PitchSet {
 public struct RelativePitch: Equatable, Hashable {
     public var interval: Int8
     public var octave: Int8
-
-    public init(interval: Int8, octave: Int8) {
+    public var homePitchClass: Int8
+    
+    public init(interval: Int8, octave: Int8, homePitchClass: Int8) {
         self.interval = interval
         self.octave = octave
+        self.homePitchClass = homePitchClass % 12
+    }
+
+    // built in % modulo needs help w neg numbers
+    // see https://stackoverflow.com/questions/41180292/negative-number-modulo-in-swift
+    public static func mod(_ a: Int8, _ n: Int8) -> Int8 {
+        precondition(n > 0, "modulus must be positive")
+        let r = a % n
+        return r >= 0 ? r : r + n
     }
 
     /// Returns the distance between Pitches in semitones.
@@ -36,12 +46,12 @@ public struct RelativePitch: Equatable, Hashable {
 
     /// Equivalence classes of pitches modulo octave.
     public var pitchClass: Int8 {
-        interval % 12
+        RelativePitch.mod(interval, 12)
     }
 
     /// Equivalence classes of pitches modulo octave.
     public var midiNoteNumber: Int8 {
-        interval + 12 * octave + 12
+        interval + 12 * octave + homePitchClass
     }
 }
 
@@ -51,10 +61,9 @@ extension RelativePitch: IntRepresentable {
     }
 
     public init(intValue: Int) {
-        let m = Float(intValue)
-        
-        octave = Int8(floor((m-12)/12))
-        interval = Int8(Int((m-12)) % 12)
+        octave = Int8(floor(Float(intValue)/12))
+        interval = RelativePitch.mod(Int8(intValue), 12)
+        homePitchClass = 0
     }
 }
 
