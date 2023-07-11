@@ -23,6 +23,7 @@ public struct RelativePitch: Equatable, Hashable {
     public var interval: Int8
     public var octave: Int8
     public var homePitchClass: Int8
+    private let lowestHomePitch: Int8 = 2
     
     public init(interval: Int8, octave: Int8, homePitchClass: Int8) {
         self.interval = interval
@@ -51,7 +52,7 @@ public struct RelativePitch: Equatable, Hashable {
 
     /// Equivalence classes of pitches modulo octave.
     public var midiNoteNumber: Int8 {
-        interval + 12 * octave + homePitchClass
+        interval + 12 * octave + homePitchClass + lowestHomePitch
     }
 }
 
@@ -61,8 +62,8 @@ extension RelativePitch: IntRepresentable {
     }
 
     public init(intValue: Int) {
-        octave = Int8(floor(Float(intValue)/12))
-        interval = RelativePitch.mod(Int8(intValue), 12)
+        octave = Int8(floor(Float(intValue) - Float(lowestHomePitch))/12)
+        interval = RelativePitch.mod(Int8(intValue - Int(lowestHomePitch)), 12)
         homePitchClass = 0
     }
 }
